@@ -6,10 +6,7 @@ import {
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-
-import StudentDashboard from "./pages/StudentDashboard";
 import StaffDashboard from "./pages/StaffDashboard";
-
 
 import Unauthorized from "./pages/Unauthorized";
 
@@ -48,15 +45,6 @@ function App() {
           element={<Unauthorized />}
         />
 
-
-        <Route
-          path="/student"
-          element={
-            <ProtectedRoute allowedRole="student">
-              <StudentDashboard />
-            </ProtectedRoute>
-          }
-        />
 
         <Route
           path="/staff"
