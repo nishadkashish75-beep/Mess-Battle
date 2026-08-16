@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
+import AdminNavbar from "./components/admin/AdminNavbar";
 
 // Auth pages
 import Login from "./pages/Login";
@@ -18,22 +19,26 @@ import StaffDashboard from "./pages/StaffDashboard";
 import Feedback from "./pages/student/Feedback";
 import Complaint from "./pages/student/Complaint";
 import Voting from "./pages/student/Voting";
-
-// Menu features
 import StudentMenu from "./pages/student/StudentMenu";
 import MealDemand from "./pages/student/MealDemand";
 
-import StaffMenu from "./pages/staff/StaffMenu";
-
 // Staff features
-import ComplaintManagement from "./pages/staff/ComplaintManagement";
+import StaffMenu from "./pages/staff/StaffMenu";
+import StaffComplaintManagement from "./pages/staff/ComplaintManagement";
+
+// Admin features
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import UserManagement from "./pages/admin/UserManagement";
+import AdminComplaintManagement from "./pages/admin/ComplaintManagement";
+import RegistrationManagement from "./pages/admin/RegistrationManagement";
+import AnnouncementManagement from "./pages/admin/AnnouncementManagement";
+import Analytics from "./pages/admin/Analytics";
 
 function App() {
   return (
     <BrowserRouter>
-      <Navbar />
-
       <Routes>
+
         {/* ================= PUBLIC ROUTES ================= */}
 
         <Route path="/" element={<Login />} />
@@ -44,24 +49,29 @@ function App() {
 
         <Route path="/unauthorized" element={<Unauthorized />} />
 
-        {/* ================= STUDENT DASHBOARD ================= */}
+
+        {/* ================= STUDENT AREA ================= */}
 
         <Route
           path="/student"
           element={
             <ProtectedRoute allowedRole="student">
-              <StudentDashboard />
+              <>
+                <Navbar />
+                <StudentDashboard />
+              </>
             </ProtectedRoute>
           }
         />
-
-        {/* ================= STUDENT FEATURES ================= */}
 
         <Route
           path="/feedback"
           element={
             <ProtectedRoute allowedRole="student">
-              <Feedback />
+              <>
+                <Navbar />
+                <Feedback />
+              </>
             </ProtectedRoute>
           }
         />
@@ -70,7 +80,10 @@ function App() {
           path="/complaint"
           element={
             <ProtectedRoute allowedRole="student">
-              <Complaint />
+              <>
+                <Navbar />
+                <Complaint />
+              </>
             </ProtectedRoute>
           }
         />
@@ -79,7 +92,10 @@ function App() {
           path="/voting"
           element={
             <ProtectedRoute allowedRole="student">
-              <Voting />
+              <>
+                <Navbar />
+                <Voting />
+              </>
             </ProtectedRoute>
           }
         />
@@ -88,7 +104,10 @@ function App() {
           path="/menu"
           element={
             <ProtectedRoute allowedRole="student">
-              <StudentMenu />
+              <>
+                <Navbar />
+                <StudentMenu />
+              </>
             </ProtectedRoute>
           }
         />
@@ -97,29 +116,25 @@ function App() {
           path="/meal-demand"
           element={
             <ProtectedRoute allowedRole="student">
-              <MealDemand />
+              <>
+                <Navbar />
+                <MealDemand />
+              </>
             </ProtectedRoute>
           }
         />
 
-        {/* ================= STAFF DASHBOARD ================= */}
+
+        {/* ================= STAFF AREA ================= */}
 
         <Route
           path="/staff"
           element={
             <ProtectedRoute allowedRole="staff">
-              <StaffDashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ================= STAFF FEATURES ================= */}
-
-        <Route
-          path="/staff/complaints"
-          element={
-            <ProtectedRoute allowedRole="staff">
-              <ComplaintManagement />
+              <>
+                <Navbar />
+                <StaffDashboard />
+              </>
             </ProtectedRoute>
           }
         />
@@ -128,14 +143,94 @@ function App() {
           path="/staff/menu"
           element={
             <ProtectedRoute allowedRole="staff">
-              <StaffMenu />
+              <>
+                <Navbar />
+                <StaffMenu />
+              </>
             </ProtectedRoute>
           }
         />
 
+        <Route
+          path="/staff/complaints"
+          element={
+            <ProtectedRoute allowedRole="staff">
+              <>
+                <Navbar />
+                <StaffComplaintManagement />
+              </>
+            </ProtectedRoute>
+          }
+        />
+
+
+        {/* ================= ADMIN AREA ================= */}
+
+        <Route
+          path="/admin"
+          element={
+            <>
+              <AdminNavbar />
+              <AdminDashboard />
+            </>
+          }
+        />
+
+        <Route
+          path="/users"
+          element={
+            <>
+              <AdminNavbar />
+              <UserManagement />
+            </>
+          }
+        />
+
+        <Route
+          path="/admin/registration-requests"
+          element={
+            <>
+              <AdminNavbar />
+              <RegistrationManagement />
+            </>
+          }
+        />
+
+        <Route
+          path="/complaints"
+          element={
+            <>
+              <AdminNavbar />
+              <AdminComplaintManagement />
+            </>
+          }
+        />
+
+        <Route
+          path="/announcements"
+          element={
+            <>
+              <AdminNavbar />
+              <AnnouncementManagement />
+            </>
+          }
+        />
+
+        <Route
+          path="/analytics"
+          element={
+            <>
+              <AdminNavbar />
+              <Analytics />
+            </>
+          }
+        />
+
+
         {/* ================= DEFAULT ================= */}
 
         <Route path="*" element={<Login />} />
+
       </Routes>
     </BrowserRouter>
   );
