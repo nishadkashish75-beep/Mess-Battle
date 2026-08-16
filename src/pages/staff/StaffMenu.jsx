@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 
 import MenuForm from "../../components/MenuForm";
 
+import MealDemand from "../student/MealDemand";
+
 import {
   setMenus,
   setLoading,
@@ -10,7 +12,7 @@ import {
 } from "../../features/menu/menuSlice";
 
 import {
-  getMenusFromFirebase,
+  subscribeToMenus,
   deleteMenuFromFirebase,
 } from "../../services/menuService";
 
@@ -27,60 +29,51 @@ function StaffMenu() {
     (state) => state.menu
   );
 
-  const [editingMenu, setEditingMenu] = useState(null);
+  const [editingMenu, setEditingMenu] =
+    useState(null);
 
 
-  // =========================
-  // FETCH MENUS
-  // =========================
+  // =====================================================
+  // REAL-TIME FIREBASE LISTENER
+  // =====================================================
 
-  const fetchMenus = async () => {
-
-    try {
-
-      dispatch(setLoading(true));
-
-      const data = await getMenusFromFirebase();
-
-      dispatch(setMenus(data));
-
-    } catch (error) {
-
-      dispatch(
-        setError(error.message)
-      );
-
-    } finally {
-
-      dispatch(setLoading(false));
-
-    }
-
-  };
-
-
-  // Fetch menus when page loads
   useEffect(() => {
 
-    fetchMenus();
+    dispatch(setLoading(true));
 
-  }, []);
+    const unsubscribe = subscribeToMenus(
+      (data) => {
+
+        dispatch(setMenus(data));
+
+        dispatch(setLoading(false));
+
+      }
+    );
 
 
-  // =========================
+    return () => {
+      unsubscribe();
+    };
+
+  }, [dispatch]);
+
+
+  // =====================================================
   // DELETE MENU
-  // =========================
+  // =====================================================
 
   const handleDelete = async (menuId) => {
 
     try {
 
-      await deleteMenuFromFirebase(menuId);
+      await deleteMenuFromFirebase(
+        menuId
+      );
 
-      alert("Menu deleted successfully!");
-
-      // Refresh list
-      await fetchMenus();
+      alert(
+        "Menu deleted successfully!"
+      );
 
     } catch (error) {
 
@@ -89,16 +82,17 @@ function StaffMenu() {
         error
       );
 
-      alert("Failed to delete menu");
+      alert(
+        "Failed to delete menu"
+      );
 
     }
-
   };
 
 
-  // =========================
+  // =====================================================
   // EDIT MENU
-  // =========================
+  // =====================================================
 
   const handleEdit = (menu) => {
 
@@ -107,9 +101,9 @@ function StaffMenu() {
   };
 
 
-  // =========================
+  // =====================================================
   // CANCEL EDIT
-  // =========================
+  // =====================================================
 
   const handleCancelEdit = () => {
 
@@ -118,24 +112,20 @@ function StaffMenu() {
   };
 
 
-  // =========================
-  // AFTER UPDATE
-  // =========================
+  // =====================================================
+  // AFTER MENU UPDATE
+  // =====================================================
 
-  const handleMenuUpdated = async () => {
+  const handleMenuUpdated = () => {
 
-    // Get updated data from Firebase
-    await fetchMenus();
-
-    // Exit edit mode
     setEditingMenu(null);
 
   };
 
 
-  // =========================
+  // =====================================================
   // LOADING
-  // =========================
+  // =====================================================
 
   if (loading) {
 
@@ -148,9 +138,9 @@ function StaffMenu() {
   }
 
 
-  // =========================
+  // =====================================================
   // ERROR
-  // =========================
+  // =====================================================
 
   if (error) {
 
@@ -167,14 +157,18 @@ function StaffMenu() {
 
     <div>
 
+      {/* ================================================= */}
+      {/* STAFF MENU MANAGEMENT */}
+      {/* ================================================= */}
+
       <h1>
         Staff Menu Management
       </h1>
 
 
-      {/* ========================= */}
-      {/* ADD / EDIT FORM */}
-      {/* ========================= */}
+      {/* ================================================= */}
+      {/* ADD / EDIT MENU FORM */}
+      {/* ================================================= */}
 
       <MenuForm
         editingMenu={editingMenu}
@@ -186,9 +180,9 @@ function StaffMenu() {
       <hr />
 
 
-      {/* ========================= */}
+      {/* ================================================= */}
       {/* EXISTING MENUS */}
-      {/* ========================= */}
+      {/* ================================================= */}
 
       <h2>
         Existing Menus
@@ -205,7 +199,14 @@ function StaffMenu() {
 
         menus.map((menu) => (
 
-          <div key={menu.id}>
+          <div
+            key={menu.id}
+            style={{
+              border: "1px solid #ccc",
+              padding: "15px",
+              margin: "15px 0",
+            }}
+          >
 
             <h3>
               {menu.mealType}
@@ -232,7 +233,7 @@ function StaffMenu() {
             </p>
 
 
-            {/* EDIT */}
+            {/* EDIT BUTTON */}
 
             <button
               onClick={() =>
@@ -246,7 +247,7 @@ function StaffMenu() {
             {" "}
 
 
-            {/* DELETE */}
+            {/* DELETE BUTTON */}
 
             <button
               onClick={() =>
@@ -256,14 +257,22 @@ function StaffMenu() {
               Delete
             </button>
 
-
-            <hr />
-
           </div>
 
         ))
 
       )}
+
+
+      <hr />
+
+
+      {/* ================================================= */}
+      {/* MEAL DEMAND */}
+      {/* ================================================= */}
+
+      <MealDemand menus={menus} />
+
 
     </div>
 
