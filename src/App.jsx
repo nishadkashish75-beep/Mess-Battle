@@ -1,15 +1,8 @@
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route,} from "react-router-dom";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import StaffDashboard from "./pages/StaffDashboard";
-
 import Unauthorized from "./pages/Unauthorized";
-
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
@@ -45,15 +38,6 @@ function App() {
           element={<Unauthorized />}
         />
 
-
-        <Route
-          path="/staff"
-          element={
-            <ProtectedRoute allowedRole="staff">
-              <StaffDashboard />
-            </ProtectedRoute>
-          }
-        />
 
       </Routes>
 
