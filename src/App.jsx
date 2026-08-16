@@ -19,6 +19,12 @@ import Feedback from "./pages/student/Feedback";
 import Complaint from "./pages/student/Complaint";
 import Voting from "./pages/student/Voting";
 
+// Menu features
+import StudentMenu from "./pages/student/StudentMenu";
+import MealDemand from "./pages/student/MealDemand";
+
+import StaffMenu from "./pages/staff/StaffMenu";
+
 // Staff features
 import ComplaintManagement from "./pages/staff/ComplaintManagement";
 
@@ -38,7 +44,7 @@ function App() {
 
         <Route path="/unauthorized" element={<Unauthorized />} />
 
-        {/* ================= STUDENT ROUTES ================= */}
+        {/* ================= STUDENT DASHBOARD ================= */}
 
         <Route
           path="/student"
@@ -48,6 +54,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* ================= STUDENT FEATURES ================= */}
 
         <Route
           path="/feedback"
@@ -76,7 +84,25 @@ function App() {
           }
         />
 
-        {/* ================= STAFF ROUTES ================= */}
+        <Route
+          path="/menu"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <StudentMenu />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/meal-demand"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <MealDemand />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ================= STAFF DASHBOARD ================= */}
 
         <Route
           path="/staff"
@@ -87,6 +113,8 @@ function App() {
           }
         />
 
+        {/* ================= STAFF FEATURES ================= */}
+
         <Route
           path="/staff/complaints"
           element={
@@ -96,7 +124,16 @@ function App() {
           }
         />
 
-        {/* ================= DEFAULT ROUTE ================= */}
+        <Route
+          path="/staff/menu"
+          element={
+            <ProtectedRoute allowedRole="staff">
+              <StaffMenu />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ================= DEFAULT ================= */}
 
         <Route path="*" element={<Login />} />
       </Routes>

@@ -9,7 +9,7 @@ const firebaseConfig = {
   storageBucket: "mess-battle.firebasestorage.app",
   messagingSenderId: "656256406360",
   appId: "1:656256406360:web:95a6a066e100b5727dcb2d",
-  measurementId: "G-C4N8YJMB2W"
+  measurementId: "G-C4N8YJMB2W",
 };
 
 const app = initializeApp(firebaseConfig);

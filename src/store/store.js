@@ -7,6 +7,9 @@ import feedbackReducer from "../features/feedback/feedbackSlice";
 import complaintReducer from "../features/complaints/complaintSlice";
 import voteReducer from "../features/voting/voteSlice";
 
+import menuReducer from "../features/menu/menuSlice";
+import mealReducer from "../features/meals/mealSlice";
+
 export const store = configureStore({
   reducer: {
     // Authentication
@@ -15,9 +18,19 @@ export const store = configureStore({
     // Student
     student: studentReducer,
 
-    // Student features
+    // Feedback
     feedback: feedbackReducer,
+
+    // Complaints
     complaint: complaintReducer,
+
+    // Voting
     vote: voteReducer,
+
+    // Menu
+    menu: menuReducer,
+
+    // Meal
+    meal: mealReducer,
   },
 });

@@ -10,13 +10,10 @@ function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 shadow-sm backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
         
         {/* Logo */}
-        <NavLink
-          to="/feedback"
-          className="flex items-center gap-2"
-        >
+        <NavLink to="/student" className="flex items-center gap-2">
           <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-lg">
             🍽️
           </span>
@@ -27,29 +24,35 @@ function Navbar() {
         </NavLink>
 
         {/* Navigation */}
-        <div className="flex gap-1 sm:gap-2">
-          <NavLink
-            to="/feedback"
-            className={linkClass}
-          >
+        <div className="flex flex-wrap gap-1 sm:gap-2">
+          <NavLink to="/student" className={linkClass}>
+            Dashboard
+          </NavLink>
+
+          <NavLink to="/feedback" className={linkClass}>
             Feedback
           </NavLink>
 
-          <NavLink
-            to="/complaint"
-            className={linkClass}
-          >
+          <NavLink to="/complaint" className={linkClass}>
             Complaints
           </NavLink>
 
-          <NavLink
-            to="/voting"
-            className={linkClass}
-          >
+          <NavLink to="/voting" className={linkClass}>
             Voting
           </NavLink>
-        </div>
 
+          <NavLink to="/menu" className={linkClass}>
+            Menu
+          </NavLink>
+
+          <NavLink to="/meal-demand" className={linkClass}>
+            Meal Demand
+          </NavLink>
+
+          <NavLink to="/staff" className={linkClass}>
+            Staff
+          </NavLink>
+        </div>
       </div>
     </nav>
   );
