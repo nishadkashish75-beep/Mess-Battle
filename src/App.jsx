@@ -2,69 +2,20 @@ import { useState } from "react";
 
 import StaffMenu from "./pages/staff/StaffMenu";
 import StudentMenu from "./pages/student/StudentMenu";
-
+import Navbar from "./components/Navbar";
 
 function App() {
-
   const [page, setPage] = useState("student");
-
 
   return (
     <div>
+      <Navbar page={page} setPage={setPage} />
 
-      <h1>
-        Mess Battle
-      </h1>
+      {page === "staff" && <StaffMenu />}
 
-
-      {/* ========================================= */}
-      {/* NAVIGATION - TEMPORARY FOR TESTING */}
-      {/* ========================================= */}
-
-      <div>
-
-        <button
-          onClick={() => setPage("staff")}
-        >
-          Staff
-        </button>
-
-
-        {" "}
-
-
-        <button
-          onClick={() => setPage("student")}
-        >
-          Student
-        </button>
-
-      </div>
-
-
-      <hr />
-
-
-      {/* ========================================= */}
-      {/* STAFF PAGE */}
-      {/* ========================================= */}
-
-      {page === "staff" && (
-        <StaffMenu />
-      )}
-
-
-      {/* ========================================= */}
-      {/* STUDENT PAGE */}
-      {/* ========================================= */}
-
-      {page === "student" && (
-        <StudentMenu />
-      )}
-
+      {page === "student" && <StudentMenu />}
     </div>
   );
 }
-
 
 export default App;

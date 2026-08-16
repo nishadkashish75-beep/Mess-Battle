@@ -1,82 +1,125 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
 
-import { setAttendance } from "../features/meals/mealSlice";
-
-import { addMealAttendance } from "../services/mealService";
+import {
+  addMealAttendance,
+  getAttendanceByMeal,
+} from "../services/mealService";
 
 
 function StudentMealResponse({ meal }) {
 
-  const dispatch = useDispatch();
+  const [response, setResponse] =
+    useState("");
 
-  const [response, setResponse] = useState("");
+  const [loading, setLoading] =
+    useState(false);
 
-  const [loading, setLoading] = useState(false);
+
+  // =====================================================
+  // GET CURRENT STUDENT RESPONSE
+  // =====================================================
+
+  useEffect(() => {
+
+    const loadResponse = async () => {
+
+      try {
+
+        const studentId =
+          localStorage.getItem(
+            "messStudentId"
+          );
+
+        if (!studentId) {
+          return;
+        }
+
+        const attendance =
+          await getAttendanceByMeal(
+            meal.id
+          );
+
+        const myResponse =
+          attendance.find(
+            (item) =>
+              item.studentId === studentId
+          );
+
+        if (myResponse) {
+
+          setResponse(
+            myResponse.response
+          );
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Error loading response:",
+          error
+        );
+
+      }
+    };
+
+
+    loadResponse();
+
+  }, [meal.id]);
 
 
   // =====================================================
   // HANDLE YES / NO
   // =====================================================
 
-  const handleResponse = async (selectedResponse) => {
+  const handleResponse = async (
+    selectedResponse
+  ) => {
+
+    if (loading) {
+      return;
+    }
 
     try {
 
       setLoading(true);
 
+
       const attendanceData = {
 
         mealId: meal.id,
-
-        studentId: "student-demo",
-
-        response: selectedResponse,
 
         mealType: meal.mealType,
 
         date: meal.date,
 
+        timing: meal.timing,
+
+        response: selectedResponse,
+
       };
 
 
-      const savedAttendance =
-        await addMealAttendance(
-          attendanceData
-        );
-
-
-      // Store response in Redux
-      dispatch(
-        setAttendance({
-          mealId: meal.id,
-          response: selectedResponse,
-        })
+      await addMealAttendance(
+        attendanceData
       );
 
 
-      setResponse(selectedResponse);
-
-
-      alert(
-        `Meal response saved: ${selectedResponse}`
+      setResponse(
+        selectedResponse
       );
 
-
-      console.log(
-        "Saved attendance:",
-        savedAttendance
-      );
 
     } catch (error) {
 
       console.error(
-        "Error saving meal response:",
+        "Error saving response:",
         error
       );
 
       alert(
-        "Failed to save meal response"
+        "Unable to save your response."
       );
 
     } finally {
@@ -84,99 +127,124 @@ function StudentMealResponse({ meal }) {
       setLoading(false);
 
     }
-
   };
 
 
   return (
 
-    <div>
+    <div className="mt-5">
 
-      <h2>
-        {meal.mealType}
-      </h2>
+      {/* QUESTION */}
 
+      <div className="text-center">
 
-      <p>
-        Date: {meal.date}
-      </p>
+        <h3 className="text-lg font-bold text-slate-800">
 
+          Will you attend this meal?
 
-      <p>
-        Timing: {meal.timing}
-      </p>
+        </h3>
 
 
-      <p>
-        Items:{" "}
+        <p className="text-sm text-slate-500 mt-1">
 
-        {Array.isArray(meal.items)
-          ? meal.items.join(", ")
-          : meal.items}
+          Help the mess prepare the right
+          amount of food.
 
-      </p>
+        </p>
 
-
-      <h3>
-        Will you attend this meal?
-      </h3>
+      </div>
 
 
-      {/* YES BUTTON */}
+      {/* BUTTONS */}
 
-      <button
-        type="button"
-        onClick={() =>
-          handleResponse("YES")
-        }
-        disabled={loading}
-      >
+      <div className="flex justify-center gap-3 mt-4">
 
-        YES
+        <button
 
-      </button>
+          onClick={() =>
+            handleResponse("YES")
+          }
 
+          disabled={loading}
 
-      {" "}
+          className={`px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
+            response === "YES"
 
+              ? "bg-green-600 text-white shadow-lg"
 
-      {/* NO BUTTON */}
+              : "bg-green-50 text-green-700 border border-green-200 hover:bg-green-600 hover:text-white"
+          }`}
 
-      <button
-        type="button"
-        onClick={() =>
-          handleResponse("NO")
-        }
-        disabled={loading}
-      >
+        >
 
-        NO
+          ✓ YES
 
-      </button>
+        </button>
 
 
-      {/* CURRENT RESPONSE */}
+        <button
+
+          onClick={() =>
+            handleResponse("NO")
+          }
+
+          disabled={loading}
+
+          className={`px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
+            response === "NO"
+
+              ? "bg-red-600 text-white shadow-lg"
+
+              : "bg-red-50 text-red-700 border border-red-200 hover:bg-red-600 hover:text-white"
+          }`}
+
+        >
+
+          ✕ NO
+
+        </button>
+
+      </div>
+
+
+      {/* RESPONSE */}
 
       {response && (
 
-        <p>
+        <div
+          className={`mt-4 text-center rounded-xl px-4 py-3 ${
+            response === "YES"
 
-          Your response:
+              ? "bg-green-50 text-green-700"
 
-          {" "}
+              : "bg-red-50 text-red-700"
+          }`}
+        >
 
-          <strong>
-            {response}
-          </strong>
+          <p className="text-xs uppercase tracking-wide">
 
-        </p>
+            Your response
+
+          </p>
+
+
+          <p className="font-bold text-lg mt-1">
+
+            {response === "YES"
+
+              ? "✓ Attending"
+
+              : "✕ Not attending"}
+
+          </p>
+
+        </div>
 
       )}
 
     </div>
 
   );
-
 }
 
 

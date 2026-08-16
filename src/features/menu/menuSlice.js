@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-
 const initialState = {
   menus: [],
   loading: false,
@@ -13,34 +12,42 @@ const menuSlice = createSlice({
   initialState,
 
   reducers: {
+    // SET ALL MENUS
     setMenus: (state, action) => {
       state.menus = action.payload;
     },
 
+    // ADD MENU
     addMenu: (state, action) => {
       state.menus.push(action.payload);
     },
 
+    // UPDATE MENU
     updateMenu: (state, action) => {
+      const updatedMenu = action.payload;
+
       const index = state.menus.findIndex(
-        (menu) => menu.id === action.payload.id
+        (menu) => menu.id === updatedMenu.id
       );
 
       if (index !== -1) {
-        state.menus[index] = action.payload;
+        state.menus[index] = updatedMenu;
       }
     },
 
+    // DELETE MENU
     deleteMenu: (state, action) => {
       state.menus = state.menus.filter(
         (menu) => menu.id !== action.payload
       );
     },
 
+    // LOADING
     setLoading: (state, action) => {
       state.loading = action.payload;
     },
 
+    // ERROR
     setError: (state, action) => {
       state.error = action.payload;
     },

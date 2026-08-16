@@ -3,8 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 
 import MenuForm from "../../components/MenuForm";
 
-import MealDemand from "../student/MealDemand";
-
 import {
   setMenus,
   setLoading,
@@ -34,22 +32,21 @@ function StaffMenu() {
 
 
   // =====================================================
-  // REAL-TIME FIREBASE LISTENER
+  // REAL-TIME MENU LISTENER
   // =====================================================
 
   useEffect(() => {
 
     dispatch(setLoading(true));
 
-    const unsubscribe = subscribeToMenus(
-      (data) => {
+    const unsubscribe =
+      subscribeToMenus((data) => {
 
         dispatch(setMenus(data));
 
         dispatch(setLoading(false));
 
-      }
-    );
+      });
 
 
     return () => {
@@ -67,13 +64,9 @@ function StaffMenu() {
 
     try {
 
-      await deleteMenuFromFirebase(
-        menuId
-      );
+      await deleteMenuFromFirebase(menuId);
 
-      alert(
-        "Menu deleted successfully!"
-      );
+      alert("Menu deleted successfully!");
 
     } catch (error) {
 
@@ -82,9 +75,7 @@ function StaffMenu() {
         error
       );
 
-      alert(
-        "Failed to delete menu"
-      );
+      alert("Failed to delete menu.");
 
     }
   };
@@ -113,7 +104,7 @@ function StaffMenu() {
 
 
   // =====================================================
-  // AFTER MENU UPDATE
+  // AFTER UPDATE
   // =====================================================
 
   const handleMenuUpdated = () => {
@@ -130,9 +121,21 @@ function StaffMenu() {
   if (loading) {
 
     return (
-      <h2>
-        Loading menus...
-      </h2>
+      <div className="min-h-screen flex items-center justify-center bg-orange-50">
+
+        <div className="text-center">
+
+          <div className="text-4xl mb-3">
+            🍽️
+          </div>
+
+          <h2 className="text-xl font-semibold text-gray-700">
+            Loading menus...
+          </h2>
+
+        </div>
+
+      </div>
     );
 
   }
@@ -145,9 +148,21 @@ function StaffMenu() {
   if (error) {
 
     return (
-      <h2>
-        Error: {error}
-      </h2>
+      <div className="min-h-screen flex items-center justify-center bg-red-50">
+
+        <div className="text-center">
+
+          <h2 className="text-xl font-bold text-red-600">
+            Something went wrong
+          </h2>
+
+          <p className="text-gray-600 mt-2">
+            {error}
+          </p>
+
+        </div>
+
+      </div>
     );
 
   }
@@ -155,129 +170,265 @@ function StaffMenu() {
 
   return (
 
-    <div>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
 
       {/* ================================================= */}
-      {/* STAFF MENU MANAGEMENT */}
+      {/* HEADER */}
       {/* ================================================= */}
 
-      <h1>
-        Staff Menu Management
-      </h1>
+      <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+
+        <div className="max-w-6xl mx-auto px-6 py-8">
+
+          <p className="text-orange-100 text-sm font-medium">
+            STAFF PANEL
+          </p>
+
+          <h1 className="text-3xl md:text-4xl font-bold mt-1">
+            Menu Management 🍽️
+          </h1>
+
+          <p className="text-orange-100 mt-2">
+            Add, update and manage daily mess menus.
+          </p>
+
+        </div>
+
+      </div>
 
 
-      {/* ================================================= */}
-      {/* ADD / EDIT MENU FORM */}
-      {/* ================================================= */}
-
-      <MenuForm
-        editingMenu={editingMenu}
-        onCancelEdit={handleCancelEdit}
-        onMenuUpdated={handleMenuUpdated}
-      />
+      <div className="max-w-6xl mx-auto px-6 py-8">
 
 
-      <hr />
+        {/* ================================================= */}
+        {/* ADD / EDIT MENU */}
+        {/* ================================================= */}
 
+        <div className="bg-white rounded-2xl shadow-lg border border-orange-100 p-6 mb-8">
 
-      {/* ================================================= */}
-      {/* EXISTING MENUS */}
-      {/* ================================================= */}
+          <div className="flex items-center justify-between mb-6">
 
-      <h2>
-        Existing Menus
-      </h2>
+            <div>
 
+              <h2 className="text-2xl font-bold text-gray-800">
 
-      {menus.length === 0 ? (
+                {editingMenu
+                  ? "Edit Menu"
+                  : "Add New Menu"}
 
-        <p>
-          No menus available.
-        </p>
+              </h2>
 
-      ) : (
+              <p className="text-gray-500 text-sm mt-1">
 
-        menus.map((menu) => (
+                {editingMenu
+                  ? "Update the selected meal details."
+                  : "Create a new breakfast, lunch or dinner menu."}
 
-          <div
-            key={menu.id}
-            style={{
-              border: "1px solid #ccc",
-              padding: "15px",
-              margin: "15px 0",
-            }}
-          >
+              </p>
 
-            <h3>
-              {menu.mealType}
-            </h3>
+            </div>
 
-
-            <p>
-              Date: {menu.date}
-            </p>
-
-
-            <p>
-              Timing: {menu.timing}
-            </p>
-
-
-            <p>
-              Items:{" "}
-
-              {Array.isArray(menu.items)
-                ? menu.items.join(", ")
-                : menu.items}
-
-            </p>
-
-
-            {/* EDIT BUTTON */}
-
-            <button
-              onClick={() =>
-                handleEdit(menu)
-              }
-            >
-              Edit
-            </button>
-
-
-            {" "}
-
-
-            {/* DELETE BUTTON */}
-
-            <button
-              onClick={() =>
-                handleDelete(menu.id)
-              }
-            >
-              Delete
-            </button>
+            <div className="text-4xl">
+              🍴
+            </div>
 
           </div>
 
-        ))
 
-      )}
+          <MenuForm
+            editingMenu={editingMenu}
+            onCancelEdit={handleCancelEdit}
+            onMenuUpdated={handleMenuUpdated}
+          />
+
+        </div>
 
 
-      <hr />
+        {/* ================================================= */}
+        {/* EXISTING MENUS */}
+        {/* ================================================= */}
+
+        <div>
+
+          <div className="flex items-center justify-between mb-5">
+
+            <div>
+
+              <h2 className="text-2xl font-bold text-gray-800">
+                Existing Menus
+              </h2>
+
+              <p className="text-gray-500 text-sm mt-1">
+                Manage the menus currently available.
+              </p>
+
+            </div>
+
+            <div className="bg-orange-100 text-orange-700 px-4 py-2 rounded-xl font-semibold">
+
+              {menus.length}{" "}
+              {menus.length === 1
+                ? "Menu"
+                : "Menus"}
+
+            </div>
+
+          </div>
 
 
-      {/* ================================================= */}
-      {/* MEAL DEMAND */}
-      {/* ================================================= */}
+          {menus.length === 0 ? (
 
-      <MealDemand menus={menus} />
+            <div className="bg-white rounded-2xl shadow-md p-10 text-center">
 
+              <div className="text-5xl mb-4">
+                🍽️
+              </div>
+
+              <h3 className="text-xl font-semibold text-gray-700">
+                No menus available
+              </h3>
+
+              <p className="text-gray-500 mt-2">
+                Add your first meal menu using the form above.
+              </p>
+
+            </div>
+
+          ) : (
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+              {menus.map((menu) => (
+
+                <div
+                  key={menu.id}
+                  className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden hover:shadow-xl transition"
+                >
+
+                  {/* CARD HEADER */}
+
+                  <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-5">
+
+                    <div className="flex items-center justify-between">
+
+                      <h3 className="text-xl font-bold">
+                        {menu.mealType}
+                      </h3>
+
+                      <span className="text-2xl">
+                        {menu.mealType === "Breakfast"
+                          ? "🌅"
+                          : menu.mealType === "Lunch"
+                          ? "☀️"
+                          : "🌙"}
+                      </span>
+
+                    </div>
+
+                    <p className="text-orange-100 text-sm mt-1">
+                      {menu.date}
+                    </p>
+
+                  </div>
+
+
+                  {/* CARD BODY */}
+
+                  <div className="p-5">
+
+                    {/* Timing */}
+
+                    <div className="mb-4">
+
+                      <p className="text-xs font-semibold text-gray-400 uppercase">
+                        Timing
+                      </p>
+
+                      <p className="text-gray-700 font-medium mt-1">
+                        🕐 {menu.timing}
+                      </p>
+
+                    </div>
+
+
+                    {/* Food Items */}
+
+                    <div>
+
+                      <p className="text-xs font-semibold text-gray-400 uppercase">
+                        Food Items
+                      </p>
+
+                      <div className="flex flex-wrap gap-2 mt-2">
+
+                        {Array.isArray(menu.items)
+                          ? menu.items.map(
+                              (item, index) => (
+
+                                <span
+                                  key={index}
+                                  className="bg-orange-50 text-orange-700 px-3 py-1 rounded-lg text-sm font-medium"
+                                >
+                                  {item}
+                                </span>
+
+                              )
+                            )
+                          : (
+
+                            <span className="text-gray-700">
+                              {menu.items}
+                            </span>
+
+                          )}
+
+                      </div>
+
+                    </div>
+
+
+                    {/* ACTION BUTTONS */}
+
+                    <div className="flex gap-3 mt-6">
+
+                      <button
+                        onClick={() =>
+                          handleEdit(menu)
+                        }
+                        className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2.5 rounded-xl transition"
+                      >
+                        ✏️ Edit
+                      </button>
+
+
+                      <button
+                        onClick={() =>
+                          handleDelete(menu.id)
+                        }
+                        className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 font-semibold py-2.5 rounded-xl transition"
+                      >
+                        🗑️ Delete
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              ))}
+
+            </div>
+
+          )}
+
+        </div>
+
+      </div>
 
     </div>
 
   );
-
 }
 
 

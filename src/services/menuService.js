@@ -2,11 +2,11 @@ import {
   collection,
   addDoc,
   getDocs,
-  deleteDoc,
   updateDoc,
+  deleteDoc,
   doc,
-  onSnapshot,
   serverTimestamp,
+  onSnapshot,
 } from "firebase/firestore";
 
 import { db } from "../firebase/config";
@@ -23,6 +23,7 @@ export const addMenuToFirebase = async (menuData) => {
       {
         ...menuData,
         createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
       }
     );
 
@@ -30,7 +31,6 @@ export const addMenuToFirebase = async (menuData) => {
       id: docRef.id,
       ...menuData,
     };
-
   } catch (error) {
     console.error("Error adding menu:", error);
     throw error;
@@ -48,25 +48,49 @@ export const getMenusFromFirebase = async () => {
       collection(db, "menus")
     );
 
-    const menus = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const menus = snapshot.docs.map((menuDoc) => {
+      const data = menuDoc.data();
+
+      return {
+        id: menuDoc.id,
+        ...data,
+
+        // Firebase Timestamp → normal string
+        createdAt: data.createdAt
+          ? data.createdAt.toDate().toISOString()
+          : null,
+
+        updatedAt: data.updatedAt
+          ? data.updatedAt.toDate().toISOString()
+          : null,
+      };
+    });
 
     return menus;
-
   } catch (error) {
-    console.error("Error fetching menus:", error);
+    console.error(
+      "Error fetching menus:",
+      error
+    );
+
     throw error;
   }
 };
 
+
+// =====================================================
+// UPDATE MENU
+// =====================================================
 
 export const updateMenuInFirebase = async (
   menuId,
   menuData
 ) => {
   try {
+    if (!menuId) {
+      throw new Error("Menu ID is missing.");
+    }
+
     const menuRef = doc(
       db,
       "menus",
@@ -75,11 +99,22 @@ export const updateMenuInFirebase = async (
 
     await updateDoc(
       menuRef,
-      menuData
+      {
+        ...menuData,
+        updatedAt: serverTimestamp(),
+      }
     );
 
+    return {
+      id: menuId,
+      ...menuData,
+    };
   } catch (error) {
-    console.error("Error updating menu:", error);
+    console.error(
+      "Error updating menu:",
+      error
+    );
+
     throw error;
   }
 };
@@ -93,6 +128,10 @@ export const deleteMenuFromFirebase = async (
   menuId
 ) => {
   try {
+    if (!menuId) {
+      throw new Error("Menu ID is missing.");
+    }
+
     const menuRef = doc(
       db,
       "menus",
@@ -101,8 +140,13 @@ export const deleteMenuFromFirebase = async (
 
     await deleteDoc(menuRef);
 
+    return menuId;
   } catch (error) {
-    console.error("Error deleting menu:", error);
+    console.error(
+      "Error deleting menu:",
+      error
+    );
+
     throw error;
   }
 };
@@ -112,31 +156,47 @@ export const deleteMenuFromFirebase = async (
 // REAL-TIME MENU LISTENER
 // =====================================================
 
-export const subscribeToMenus = (callback) => {
-
+export const subscribeToMenus = (
+  callback
+) => {
   const unsubscribe = onSnapshot(
-
     collection(db, "menus"),
 
     (snapshot) => {
+      const menus = snapshot.docs.map(
+        (menuDoc) => {
+          const data = menuDoc.data();
 
-      const menus = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+          return {
+            id: menuDoc.id,
+            ...data,
+
+            // Convert Firebase Timestamp
+            // before sending to Redux
+            createdAt: data.createdAt
+              ? data.createdAt
+                  .toDate()
+                  .toISOString()
+              : null,
+
+            updatedAt: data.updatedAt
+              ? data.updatedAt
+                  .toDate()
+                  .toISOString()
+              : null,
+          };
+        }
+      );
 
       callback(menus);
     },
 
     (error) => {
-
       console.error(
-        "Error listening to menus:",
+        "Real-time menu error:",
         error
       );
-
     }
-
   );
 
   return unsubscribe;
