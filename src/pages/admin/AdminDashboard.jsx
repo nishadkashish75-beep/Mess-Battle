@@ -12,10 +12,19 @@ import { db } from "../../firebase/config";
 function AdminDashboard() {
   const navigate = useNavigate();
 
+  // =========================
+  // MAIN STATS
+  // =========================
+
   const [totalUsers, setTotalUsers] = useState(0);
+  const [totalStudents, setTotalStudents] = useState(0);
   const [totalStaff, setTotalStaff] = useState(0);
   const [totalComplaints, setTotalComplaints] = useState(0);
   const [averageRating, setAverageRating] = useState("0.0");
+
+  // =========================
+  // COMPLAINT STATUS
+  // =========================
 
   const [todaysMeals, setTodaysMeals] = useState(0);
   const [pendingComplaints, setPendingComplaints] = useState(0);
@@ -24,13 +33,16 @@ function AdminDashboard() {
   const [resolvedComplaints, setResolvedComplaints] =
     useState(0);
 
+  // =========================
+  // REGISTRATION REQUESTS
+  // =========================
+
   const [pendingRequests, setPendingRequests] = useState(0);
 
   useEffect(() => {
-
-    // -------------------------
-    // USERS
-    // -------------------------
+    // =========================
+    // USERS + STUDENTS
+    // =========================
 
     const fetchUsers = async () => {
       try {
@@ -38,15 +50,33 @@ function AdminDashboard() {
           collection(db, "users")
         );
 
+        // Total users
         setTotalUsers(snapshot.size);
+
+        // Count students
+        let students = 0;
+
+        snapshot.forEach((document) => {
+          const data = document.data();
+
+          const role = (data.role || "")
+            .toLowerCase()
+            .trim();
+
+          if (role === "student" || role === "user") {
+            students++;
+          }
+        });
+
+        setTotalStudents(students);
       } catch (error) {
         console.error("Users fetch error:", error);
       }
     };
 
-    // -------------------------
+    // =========================
     // STAFF
-    // -------------------------
+    // =========================
 
     const fetchStaff = async () => {
       try {
@@ -60,9 +90,9 @@ function AdminDashboard() {
       }
     };
 
-    // -------------------------
+    // =========================
     // COMPLAINTS
-    // -------------------------
+    // =========================
 
     const fetchComplaints = async () => {
       try {
@@ -77,7 +107,6 @@ function AdminDashboard() {
         let resolved = 0;
 
         snapshot.forEach((document) => {
-
           const data = document.data();
 
           const status = (data.status || "")
@@ -103,7 +132,6 @@ function AdminDashboard() {
         setPendingComplaints(pending);
         setInProgressComplaints(inProgress);
         setResolvedComplaints(resolved);
-
       } catch (error) {
         console.error(
           "Complaints fetch error:",
@@ -112,9 +140,9 @@ function AdminDashboard() {
       }
     };
 
-    // -------------------------
+    // =========================
     // FEEDBACK
-    // -------------------------
+    // =========================
 
     const fetchFeedback = async () => {
       try {
@@ -126,7 +154,6 @@ function AdminDashboard() {
         let ratingCount = 0;
 
         snapshot.forEach((document) => {
-
           const data = document.data();
 
           if (
@@ -146,8 +173,9 @@ function AdminDashboard() {
           setAverageRating(
             (totalRating / ratingCount).toFixed(1)
           );
+        } else {
+          setAverageRating("0.0");
         }
-
       } catch (error) {
         console.error(
           "Feedback fetch error:",
@@ -156,9 +184,9 @@ function AdminDashboard() {
       }
     };
 
-    // -------------------------
+    // =========================
     // MEALS
-    // -------------------------
+    // =========================
 
     const fetchMeals = async () => {
       try {
@@ -167,7 +195,6 @@ function AdminDashboard() {
         );
 
         setTodaysMeals(snapshot.size);
-
       } catch (error) {
         console.error(
           "Meals fetch error:",
@@ -176,31 +203,36 @@ function AdminDashboard() {
       }
     };
 
-    // -------------------------
+    // =========================
     // REAL-TIME REGISTRATION REQUESTS
-    // -------------------------
+    // =========================
 
     let users = [];
     let staff = [];
 
     const updateRequestCount = () => {
-
       const allRequests = [
         ...users,
         ...staff,
       ];
 
       const pending = allRequests.filter(
-        (item) => item.status === "pending"
+        (item) => {
+          const status = (item.status || "")
+            .toLowerCase()
+            .trim();
+
+          return status === "pending";
+        }
       );
 
       setPendingRequests(pending.length);
     };
 
+    // Users listener
     const unsubscribeUsers = onSnapshot(
       collection(db, "users"),
       (snapshot) => {
-
         users = snapshot.docs.map(
           (document) => ({
             id: document.id,
@@ -218,10 +250,10 @@ function AdminDashboard() {
       }
     );
 
+    // Staff listener
     const unsubscribeStaff = onSnapshot(
       collection(db, "staff"),
       (snapshot) => {
-
         staff = snapshot.docs.map(
           (document) => ({
             id: document.id,
@@ -239,9 +271,9 @@ function AdminDashboard() {
       }
     );
 
-    // -------------------------
+    // =========================
     // FETCH EVERYTHING
-    // -------------------------
+    // =========================
 
     fetchUsers();
     fetchStaff();
@@ -249,13 +281,19 @@ function AdminDashboard() {
     fetchFeedback();
     fetchMeals();
 
+    // =========================
     // CLEANUP
+    // =========================
+
     return () => {
       unsubscribeUsers();
       unsubscribeStaff();
     };
-
   }, []);
+
+  // =========================
+  // RESOLUTION PERCENTAGE
+  // =========================
 
   const resolutionPercentage =
     totalComplaints > 0
@@ -271,14 +309,15 @@ function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
 
-        {/* HEADER */}
+        {/* =========================
+            HEADER
+        ========================= */}
 
         <div className="mb-7">
 
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
             <div>
-
               <h1 className="text-3xl font-bold text-gray-800">
                 Admin Dashboard
               </h1>
@@ -286,7 +325,6 @@ function AdminDashboard() {
               <p className="text-gray-500 mt-1">
                 Overview of your mess management system
               </p>
-
             </div>
 
             {/* REGISTRATION BUTTON */}
@@ -297,7 +335,7 @@ function AdminDashboard() {
                   "/admin/registration-requests"
                 )
               }
-              className="relative bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg font-medium"
+              className="relative bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg font-medium transition"
             >
               🔔 Registration Requests
 
@@ -312,11 +350,13 @@ function AdminDashboard() {
 
         </div>
 
-        {/* MAIN STAT CARDS */}
+        {/* =========================
+            MAIN STAT CARDS
+        ========================= */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
 
-          {/* USERS */}
+          {/* TOTAL USERS */}
 
           <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
 
@@ -330,7 +370,21 @@ function AdminDashboard() {
 
           </div>
 
-          {/* STAFF */}
+          {/* TOTAL STUDENTS */}
+
+          <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
+
+            <p className="text-gray-500 text-sm">
+              Total Students
+            </p>
+
+            <p className="text-3xl font-bold text-green-600 mt-3">
+              {totalStudents}
+            </p>
+
+          </div>
+
+          {/* TOTAL STAFF */}
 
           <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500">
 
@@ -344,7 +398,7 @@ function AdminDashboard() {
 
           </div>
 
-          {/* COMPLAINTS */}
+          {/* TOTAL COMPLAINTS */}
 
           <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-orange-500">
 
@@ -358,7 +412,7 @@ function AdminDashboard() {
 
           </div>
 
-          {/* RATING */}
+          {/* AVERAGE RATING */}
 
           <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-500">
 
@@ -374,7 +428,9 @@ function AdminDashboard() {
 
         </div>
 
-        {/* REGISTRATION REQUEST CARD */}
+        {/* =========================
+            REGISTRATION REQUEST CARD
+        ========================= */}
 
         <div className="mt-8 bg-white p-6 rounded-xl shadow-sm">
 
@@ -412,7 +468,7 @@ function AdminDashboard() {
                     "/admin/registration-requests"
                   )
                 }
-                className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg"
+                className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg transition"
               >
                 Manage
               </button>
@@ -423,7 +479,9 @@ function AdminDashboard() {
 
         </div>
 
-        {/* SYSTEM MONITORING */}
+        {/* =========================
+            SYSTEM MONITORING
+        ========================= */}
 
         <div className="mt-8 bg-white p-6 rounded-xl shadow-sm">
 
@@ -455,7 +513,7 @@ function AdminDashboard() {
 
             </div>
 
-            {/* PENDING */}
+            {/* PENDING COMPLAINTS */}
 
             <div className="bg-yellow-50 border border-yellow-100 rounded-lg p-5">
 
@@ -501,7 +559,9 @@ function AdminDashboard() {
 
         </div>
 
-        {/* QUICK STATUS */}
+        {/* =========================
+            QUICK STATUS
+        ========================= */}
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-5">
 

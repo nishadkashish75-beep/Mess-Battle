@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import RegistrationRequests from "./components/admin/RegistrationRequests";
 import AdminNavbar from "./components/admin/AdminNavbar";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -52,6 +52,10 @@ function App() {
         <Route
           path="/analytics"
           element={<Analytics />}
+        />
+        <Route
+          path="/admin/registration-requests"
+          element={<RegistrationRequests />}
         />
 
       </Routes>
